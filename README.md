@@ -27,6 +27,28 @@ docker run --rm \
   ghcr.io/ivanjx/snapraid:latest
 ```
 
+To run `snapraid fix` instead:
+
+```bash
+docker run --rm \
+  -v /etc/snapraid.conf:/etc/snapraid.conf:ro \
+  -v /mnt/disk1:/mnt/disk1 \
+  -v /mnt/disk2:/mnt/disk2 \
+  -v /mnt/parity1:/mnt/parity1 \
+  ghcr.io/ivanjx/snapraid:latest fix
+```
+
+To fix only a specific file or folder:
+
+```bash
+docker run --rm \
+  -v /etc/snapraid.conf:/etc/snapraid.conf:ro \
+  -v /mnt/disk1:/mnt/disk1 \
+  -v /mnt/disk2:/mnt/disk2 \
+  -v /mnt/parity1:/mnt/parity1 \
+  ghcr.io/ivanjx/snapraid:latest fix -f /mnt/disk1/some/file
+```
+
 ### Docker Compose
 
 ```yaml
@@ -67,4 +89,4 @@ data d2 /mnt/disk2
 2. Verifies every data disk is mounted and not empty (guards against stale mounts)
 3. Verifies every parity disk is mounted
 4. Verifies every content directory exists and is writable
-5. Runs `snapraid sync` with up to 5 retries on failure
+5. Runs the specified command: `sync` (default, with up to 5 retries) or `fix` (no retries, optionally scoped to a path with `-f`)
