@@ -26,16 +26,6 @@ def check_mount(path: str, command: str, content_files: list[str] | None = None)
     error_exit(f"{path} is NOT mounted!", command)
 
 
-def check_not_empty(path: str, command: str) -> None:
-    if not os.path.isdir(path):
-        return
-    try:
-        if not os.listdir(path):
-            error_exit(f"{path} is mounted but EMPTY! Possible failed mount.", command)
-    except PermissionError:
-        error_exit(f"Cannot access {path}", command)
-
-
 def parse_config(conf_path: str) -> tuple[list[str], list[str], list[str], list[str]]:
     data_paths: list[str] = []
     parity_paths: list[str] = []
@@ -49,7 +39,7 @@ def parse_config(conf_path: str) -> tuple[list[str], list[str], list[str], list[
     try:
         with open(conf_path, "r") as f:
             for line in f:
-                line = line.strip()
+                line = line.split("#", 1)[0].strip()
                 if not line or line.startswith("#"):
                     continue
 
@@ -90,6 +80,11 @@ def main() -> None:
         metavar="PATH",
         help="Filter by file/folder path (only for fix command)",
     )
+    parser.add_argument(
+        "--init",
+        action="store_true",
+        help="Initial run"
+    )
     args = parser.parse_args()
     command = args.command
 
@@ -98,23 +93,26 @@ def main() -> None:
 
     data_paths, parity_paths, content_paths, content_files = parse_config(SNAPRAID_CONF)
 
-    print("Checking DATA disks...")
-    for path in data_paths:
-        check_mount(path, command, content_files)
-        check_not_empty(path, command)
+    if not args.init:
+        print("Checking DATA disks...")
+        for path in data_paths:
+            check_mount(path, command, content_files)
 
-    print("Checking PARITY disks...")
-    for path in parity_paths:
-        check_mount(path, command, content_files)
+        print("Checking PARITY disks...")
+        for path in parity_paths:
+            if not os.path.isdir(path):
+                error_exit(f"Parity directory {path} does not exist!", command)
+            if not os.access(path, os.W_OK):
+                error_exit(f"Parity directory {path} is not writable!", command)
 
-    print("Checking CONTENT paths...")
-    for path in content_paths:
-        if not os.path.isdir(path):
-            error_exit(f"Content directory {path} does not exist!", command)
-        if not os.access(path, os.W_OK):
-            error_exit(f"Content directory {path} is not writable!", command)
+        print("Checking CONTENT paths...")
+        for path in content_paths:
+            if not os.path.isdir(path):
+                error_exit(f"Content directory {path} does not exist!", command)
+            if not os.access(path, os.W_OK):
+                error_exit(f"Content directory {path} is not writable!", command)
 
-    print("All SnapRAID paths verified.")
+        print("All SnapRAID paths verified.")
 
     if command == "fix":
         cmd = [SNAPRAID_BIN, "-c", SNAPRAID_CONF, command]

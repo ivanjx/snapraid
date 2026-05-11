@@ -18,6 +18,19 @@ docker build --build-arg SNAPRAID_VERSION=14.3 -t snapraid-sync .
 
 ### Docker
 
+Initial run to initialize snapraid:
+
+```bash
+docker run --rm \
+  -v /etc/snapraid.conf:/etc/snapraid.conf:ro \
+  -v /mnt/disk1:/mnt/disk1 \
+  -v /mnt/disk2:/mnt/disk2 \
+  -v /mnt/parity1:/mnt/parity1 \
+  ghcr.io/ivanjx/snapraid:latest --init
+```
+
+Subsequent runs:
+
 ```bash
 docker run --rm \
   -v /etc/snapraid.conf:/etc/snapraid.conf:ro \
