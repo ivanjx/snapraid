@@ -16,9 +16,13 @@ def error_exit(message: str) -> None:
     sys.exit(1)
 
 
-def check_mount(path: str) -> None:
-    if not os.path.ismount(path):
-        error_exit(f"{path} is NOT mounted!")
+def check_mount(path: str, content_files: list[str] | None = None) -> None:
+    if content_files:
+        sep = os.sep
+        for cf in content_files:
+            if cf.startswith(path + sep) and os.path.isfile(cf):
+                return
+    error_exit(f"{path} is NOT mounted!")
 
 
 def check_not_empty(path: str) -> None:
@@ -31,10 +35,11 @@ def check_not_empty(path: str) -> None:
         error_exit(f"Cannot access {path}")
 
 
-def parse_config(conf_path: str) -> tuple[list[str], list[str], list[str]]:
+def parse_config(conf_path: str) -> tuple[list[str], list[str], list[str], list[str]]:
     data_paths: list[str] = []
     parity_paths: list[str] = []
     content_paths: list[str] = []
+    content_files: list[str] = []
 
     data_re = re.compile(r"^data\s+\S+\s+(.+)$")
     parity_re = re.compile(r"^parity\s+(.+)$")
@@ -59,25 +64,27 @@ def parse_config(conf_path: str) -> tuple[list[str], list[str], list[str]]:
 
                 m = content_re.match(line)
                 if m:
-                    content_paths.append(os.path.dirname(m.group(1)))
+                    cf = m.group(1)
+                    content_files.append(cf)
+                    content_paths.append(os.path.dirname(cf))
                     continue
     except FileNotFoundError:
         error_exit(f"Config file {conf_path} not found!")
 
-    return data_paths, parity_paths, content_paths
+    return data_paths, parity_paths, content_paths, content_files
 
 
 def main() -> None:
-    data_paths, parity_paths, content_paths = parse_config(SNAPRAID_CONF)
+    data_paths, parity_paths, content_paths, content_files = parse_config(SNAPRAID_CONF)
 
     print("Checking DATA disks...")
     for path in data_paths:
-        check_mount(path)
+        check_mount(path, content_files)
         check_not_empty(path)
 
     print("Checking PARITY disks...")
     for path in parity_paths:
-        check_mount(path)
+        check_mount(path, content_files)
 
     print("Checking CONTENT paths...")
     for path in content_paths:

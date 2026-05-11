@@ -43,6 +43,24 @@ services:
       - snapraid
 ```
 
+## Configuration
+
+Example `/etc/snapraid.conf` matching the mounts above:
+
+```ini
+# Parity file
+parity /mnt/parity1/snapraid.parity
+
+# Content files (one per data disk, plus parity)
+content /mnt/disk1/.snapraid.content
+content /mnt/disk2/.snapraid.content
+content /mnt/parity1/.snapraid.content
+
+# Data disks
+data d1 /mnt/disk1
+data d2 /mnt/disk2
+```
+
 ## What it does
 
 1. Parses `/etc/snapraid.conf` for `data`, `parity`, and `content` paths
