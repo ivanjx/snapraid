@@ -32,7 +32,7 @@ docker run --rm \
 Subsequent runs:
 
 ```bash
-docker run --rm \
+docker run --rm --network none \
   -v /etc/snapraid.conf:/etc/snapraid.conf:ro \
   -v /mnt/disk1:/mnt/disk1 \
   -v /mnt/disk2:/mnt/disk2 \
@@ -43,7 +43,7 @@ docker run --rm \
 To run `snapraid fix` instead:
 
 ```bash
-docker run --rm \
+docker run --rm --network none \
   -v /etc/snapraid.conf:/etc/snapraid.conf:ro \
   -v /mnt/disk1:/mnt/disk1 \
   -v /mnt/disk2:/mnt/disk2 \
@@ -54,7 +54,7 @@ docker run --rm \
 To fix only a specific file or folder:
 
 ```bash
-docker run --rm \
+docker run --rm --network none \
   -v /etc/snapraid.conf:/etc/snapraid.conf:ro \
   -v /mnt/disk1:/mnt/disk1 \
   -v /mnt/disk2:/mnt/disk2 \
@@ -68,6 +68,7 @@ docker run --rm \
 services:
   snapraid:
     image: ghcr.io/ivanjx/snapraid:latest
+    network_mode: "none"
     volumes:
       - /etc/snapraid.conf:/etc/snapraid.conf:ro
       - /mnt/disk1:/mnt/disk1

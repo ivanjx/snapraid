@@ -15,4 +15,4 @@ RUN apt-get update \
 
 COPY snapraid_sync.py /usr/local/bin/snapraid_sync.py
 
-ENTRYPOINT ["python", "/usr/local/bin/snapraid_sync.py"]
+ENTRYPOINT ["python", "-u", "/usr/local/bin/snapraid_sync.py"]
