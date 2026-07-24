@@ -127,7 +127,7 @@ def main() -> None:
         for attempt in range(1, MAX_ATTEMPTS + 1):
             print(f"Attempt {attempt}...")
 
-            result = subprocess.run([SNAPRAID_BIN, "-c", SNAPRAID_CONF, command])
+            result = subprocess.run([SNAPRAID_BIN, "-c", SNAPRAID_CONF, "--force-zero", command])
             if result.returncode == 0:
                 success = True
                 break
